@@ -83,7 +83,7 @@ speed_gifs = [
 #Welcome message 
 @bot.event
 async def on_member_join(member):
-    channel = discord.utils.get(member.guild.text_channels, name="general")
+    channel = discord.utils.get(member.guild.text_channels, name="hi")
 
     if channel:
         await channel.send(f"👋 Welcome to the server, {member.mention}!")
@@ -91,7 +91,7 @@ async def on_member_join(member):
 #Goodbye message 
 @bot.event
 async def on_member_remove(member):
-    channel = discord.utils.get(member.guild.text_channels, name="general")
+    channel = discord.utils.get(member.guild.text_channels, name="hi")
 
     if channel:
         await channel.send(f"👋 {member.name} just left the server.")
