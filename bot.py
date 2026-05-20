@@ -6,6 +6,21 @@ from collections import deque
 import os
 import json
 import datetime 
+from flask import Flask
+from threading import Thread
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    app.run(host='0.0.0.0', port=10000)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # ----------------------------
 # LOAD / SAVE WELCOME DATA
@@ -173,4 +188,5 @@ async def roll(ctx):
 # RUN BOT
 # ----------------------------
 
+keep_alive()
 bot.run(os.getenv("TOKEN"))
