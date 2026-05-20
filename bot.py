@@ -4,6 +4,9 @@ import random
 import asyncio 
 from collections import deque
 import math 
+import os
+
+welcome_channels = {}
 
 # Intents are required now
 intents = discord.Intents.default()
@@ -83,18 +86,22 @@ speed_gifs = [
 #Welcome message 
 @bot.event
 async def on_member_join(member):
-    channel = discord.utils.get(member.guild.text_channels, name="hi")
+    channel_id = welcome_channels.get(member.guild.id)
 
-    if channel:
-        await channel.send(f"👋 Welcome to the server, {member.mention}!")
+    if channel_id:
+        channel = member.guild.get_channel(channel_id)
+        if channel:
+            await channel.send(f"👁️ Welcome to heaven, {member.mention}!")
 
 #Goodbye message 
 @bot.event
 async def on_member_remove(member):
-    channel = discord.utils.get(member.guild.text_channels, name="hi")
+    channel_id = welcome_channels.get(member.guild.id)
 
-    if channel:
-        await channel.send(f"👋 {member.name} just left the server.")
+    if channel_id:
+        channel = member.guild.get_channel(channel_id)
+        if channel:
+            await channel.send(f"👁️ {member.name} left.")
 
 #Speed command
 @bot.event
@@ -103,6 +110,7 @@ async def on_message(message):
     if message.author.bot:
         return
 
+    await bot.process_commands(message)
     # check if "speed" is in the message
     if "speed" in message.content.lower():
         await message.channel.send(random.choice(speed_gifs))
@@ -115,6 +123,13 @@ async def on_message(message):
 async def ping(ctx):
     await ctx.send("Pong!")
 
+#Set welcome/goodbye channel
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def setwelcome(ctx, channel: discord.TextChannel):
+    welcome_channels[ctx.guild.id] = channel.id
+    await ctx.send(f"✅ Welcome channel set to {channel.mention}")
+    
 # Hello command
 @bot.command()
 async def hello(ctx):
