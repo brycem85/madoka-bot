@@ -44,6 +44,11 @@ async def on_ready():
         bot.already_ready = True
         print(f"[{datetime.datetime.now()}] Bot online: {bot.user}")
 
+#test command 
+@bot.command()
+async def test(ctx):
+    await ctx.send(f"Instance ID: {id(bot)}")
+
 # ----------------------------
 # WHEEL COMMAND
 # ----------------------------
