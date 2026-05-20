@@ -5,6 +5,7 @@ import asyncio
 from collections import deque
 import os
 import json
+import datetime 
 
 # ----------------------------
 # LOAD / SAVE WELCOME DATA
@@ -39,7 +40,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    if not hasattr(bot, "already_ready"):
+        bot.already_ready = True
+        print(f"[{datetime.datetime.now()}] Bot online: {bot.user}")
 
 # ----------------------------
 # WHEEL COMMAND
