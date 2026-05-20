@@ -3,23 +3,48 @@ from discord.ext import commands
 import random
 import asyncio 
 from collections import deque
-import math 
 import os
+import json
 
-welcome_channels = {}
+# ----------------------------
+# LOAD / SAVE WELCOME DATA
+# ----------------------------
 
-# Intents are required now
+def load_data():
+    try:
+        with open("welcome.json", "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_data():
+    with open("welcome.json", "w") as f:
+        json.dump(welcome_channels, f)
+
+welcome_channels = load_data()
+
+# ----------------------------
+# INTENTS
+# ----------------------------
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-# Create bot
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# ----------------------------
+# READY EVENT
+# ----------------------------
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
-#Wheel command
+# ----------------------------
+# WHEEL COMMAND
+# ----------------------------
+
 @bot.command()
 async def wheel(ctx, *, options):
     choices = [c.strip() for c in options.split(",")]
@@ -38,24 +63,20 @@ async def wheel(ctx, *, options):
 
     wheel = deque(choices)
 
-    for i in range(10):
+    for _ in range(10):
         await asyncio.sleep(0.1)
 
         wheel.rotate(1)
         preview = list(wheel)[:5]
 
         lines = []
-
         for idx, item in enumerate(preview):
             if idx == 2:
                 lines.append(f"🟢 **{item}**")
             else:
                 lines.append(f"🔴 {item}")
 
-        display = "\n".join(lines)
-
-        embed.description = f"🎰\n{display}"
-
+        embed.description = "🎰\n" + "\n".join(lines)
         await msg.edit(embed=embed)
 
     await asyncio.sleep(0.5)
@@ -67,83 +88,81 @@ async def wheel(ctx, *, options):
     embed.color = discord.Color.green()
 
     await msg.edit(embed=embed)
-#Speed gifs (replace with your own GIF URLs)
+
+# ----------------------------
+# FUN SPEED GIF TRIGGER
+# ----------------------------
+
 speed_gifs = [
     "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/D63HGAzG15LQrjBPRE/giphy.gif",
     "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MOYUOOoIHOj9PKN1rE/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/s5wFafpHxqKbIEERl9/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/68L3bCQleHM3lIl58J/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/lxxOGaDRk4f7R5TkBd/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/GCO5WNzFmlc0vjK8cA/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/O0iwtaQGSuppWRZXnk/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnUzdGZwdGExczZwanpzZnA4cnh6YWhzamJzaTVubTBjMHQxOHB3aCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/nKxhhe2UlnnFoPbBnE/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3eDhhM2tjNmRhNTBrbTJmcXpjczVhdzRpZnlic3h1cXBiYTk3NnRnMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/yFnd80hiHQyEvNcmGd/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3ZwZWd0MTh1OXhwM2pkZ28wZHl3OHIxN3dtamlzeGVrMm1hM3IwdyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/12bGJjBwzS7oNCzKqC/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDN6dGI4dXQ1Yng1eWp5azk5M3NsYjM5YTkxczdpOW9mZzc3MXh6ayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/hLVv5qog6L2EWaGQkd/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDN6dGI4dXQ1Yng1eWp5azk5M3NsYjM5YTkxczdpOW9mZzc3MXh6ayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/dcKWFKCzjdozxwZASo/giphy.gif",
-    "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3a3BsZTc1bjBtNTFnNHMyNXRnZnl4ejl4dXNhdmNxcmV6aDN0NDBzMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/NuxHYnFFiNFpTswXUU/giphy.gif",
 ]
-#Welcome message 
+
+# ----------------------------
+# WELCOME / GOODBYE EVENTS
+# ----------------------------
+
 @bot.event
 async def on_member_join(member):
-    channel_id = welcome_channels.get(member.guild.id)
+    channel_id = welcome_channels.get(str(member.guild.id))
 
     if channel_id:
         channel = member.guild.get_channel(channel_id)
         if channel:
             await channel.send(f"👁️ Welcome to heaven, {member.mention}!")
 
-#Goodbye message 
 @bot.event
 async def on_member_remove(member):
-    channel_id = welcome_channels.get(member.guild.id)
+    channel_id = welcome_channels.get(str(member.guild.id))
 
     if channel_id:
         channel = member.guild.get_channel(channel_id)
         if channel:
             await channel.send(f"👁️ {member.name} left.")
 
-#Speed command
+# ----------------------------
+# MESSAGE LISTENER
+# ----------------------------
+
 @bot.event
 async def on_message(message):
-    # ignore bot messages (important or it will loop)
     if message.author.bot:
         return
 
-    await bot.process_commands(message)
-    # check if "speed" is in the message
     if "speed" in message.content.lower():
         await message.channel.send(random.choice(speed_gifs))
 
-    # THIS is required so commands like !ping still work
     await bot.process_commands(message)
 
-# Ping test
+# ----------------------------
+# COMMANDS
+# ----------------------------
+
 @bot.command()
 async def ping(ctx):
     await ctx.send("Pong!")
 
-#Set welcome/goodbye channel
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def setwelcome(ctx, channel: discord.TextChannel):
-    welcome_channels[ctx.guild.id] = channel.id
+    welcome_channels[str(ctx.guild.id)] = channel.id
+    save_data()
     await ctx.send(f"✅ Welcome channel set to {channel.mention}")
-    
-# Hello command
+
 @bot.command()
 async def hello(ctx):
     await ctx.send("hi :3")
 
-# Who am I command
 @bot.command()
 async def whoami(ctx):
     await ctx.send(f"You are {ctx.author}")
 
-# Roll command (1–100)
 @bot.command()
 async def roll(ctx):
     await ctx.send(str(random.randint(1, 100)))
 
-# Run the bot (PASTE YOUR TOKEN HERE)
+# ----------------------------
+# RUN BOT
+# ----------------------------
+
 bot.run(os.getenv("TOKEN"))
